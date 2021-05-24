@@ -1,0 +1,105 @@
+{
+  "cat": {
+    "usage": [
+      "<file1>",
+      "<file2>",
+      "...",
+      "<fileN>"
+    ],
+    "description": "Print file contents or stdin if not file provided"
+  },
+  "curl": {
+    "usage": [
+      "[url]"
+    ],
+    "description": "Fetch a file and prints its content"
+  },
+  "debug": {
+    "usage": [],
+    "description": "Do nothing, just stay alive and prints its controller in the devtools so that the user can manually play with the process"
+  },
+  "echo": {
+    "usage": [
+      "<word1>",
+      "<word2>",
+      "...",
+      "<wordN>"
+    ],
+    "description": "Prints its arguments"
+  },
+  "env": {
+    "usage": [],
+    "description": "Prints environment variables"
+  },
+  "gunzip": {
+    "usage": [
+      "<output>"
+    ],
+    "description": "Decompress stdin as gzip and save it to output, or stdout if output not provided"
+  },
+  "gzip": {
+    "usage": [
+      "<output>"
+    ],
+    "description": "Compress stdin as gzip and save it to output, or stdout if output not provided"
+  },
+  "ls": {
+    "usage": [
+      "<dir1>",
+      "<dir2>",
+      "...",
+      "<dirN>"
+    ],
+    "description": "Prints directories content (use the current working directory if no argument provided)"
+  },
+  "pwd": {
+    "usage": [],
+    "description": "Print the current working directory"
+  },
+  "rm": {
+    "usage": [
+      "<entry1>",
+      "<entry2>",
+      "...",
+      "<entryN>"
+    ],
+    "description": "Delete a file or an empty directory (no recursive option)"
+  },
+  "fork_bomb": {
+    "usage": [
+      "[depth]"
+    ],
+    "description": "USE AT YOUR OWN RISKS! Starts a bounded fork bomb (spawn '2 ^ depth' process) - intended for performances measurement only"
+  },
+  "sleep": {
+    "usage": [
+      "[duration_in_seconds]"
+    ],
+    "description": "Spawn a process that sleep for the specified amount of time"
+  },
+  "tee": {
+    "usage": [
+      "<file1>",
+      "<file2>",
+      "...",
+      "<fileN>"
+    ],
+    "description": "Redirects stdin every provided files and prints the stream content to stdout"
+  },
+  "help": {
+    "usage": [],
+    "description": "Prints this help message"
+  },
+  "cd": {
+    "shadow": true,
+    "usage": [
+      "<new_directory>"
+    ],
+    "description": "Change current directory to new_directory, or / if no directory provided"
+  },
+  "reboot": {
+    "shadow": true,
+    "usage": [],
+    "description": "Reload the page"
+  }
+}

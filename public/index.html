@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/xterm/css/xterm.css"/>
+  <title>WebContainer Shell</title>
+  <style>
+    .xterm-viewport {
+      overflow: auto !important;
+    }
+
+    body {
+      background-color: black;
+      margin: 0;
+    }
+  </style>
+</head>
+<body id="terminal-container">
+<p style="color: white">Loading...
+  <span id="noscript">
+  <br>
+  <br>If you get stuck on Loading..., it probably means your browser doesn't supports required features to show this
+  site.
+  <br>Your browser must supports top-level-await and transferable streams for this site to work. You should retry with a
+  recent version of Chrome/Chromium.
+  </span>
+</p>
+<script src="https://unpkg.com/xterm/lib/xterm.js"></script>
+<script src="https://unpkg.com/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+<script defer type="module">
+  document.body.querySelector('p').remove();
+  import './index.js';
+</script>
+<script>document.getElementById('noscript').style.display = 'inline';</script>
+</body>
+</html>
