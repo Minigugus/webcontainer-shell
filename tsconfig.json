@@ -1,14 +1,17 @@
 {
   "compilerOptions": {
     "module": "ESNext",
-    "target": "esnext",
+    "target": "ESNext",
     "outDir": "dist",
     "moduleResolution": "node",
     "sourceMap": true,
     "strict": true,
+    "strictNullChecks": true,
+    "noUncheckedIndexedAccess": true,
     "alwaysStrict": true,
+    "declaration": false,
+    "declarationMap": false,
     "esModuleInterop": true,
-    "removeComments": true,
     "lib": [
       "ES2019",
       "WebWorker"

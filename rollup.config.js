@@ -1,34 +1,51 @@
+import { readdirSync } from 'fs';
 import typescript from 'rollup-plugin-typescript2';
 
 export default [
-  // {
-  //   input: {
-  //     'kernel': 'src/kernel_space/index.ts',
-  //     'process': 'src/user_space/index.ts'
-  //   },
-  //   output: {
-  //     chunkFileNames: '[name].mjs',
-  //     entryFileNames: '[name].mjs',
-  //     format: 'esm',
-  //     dir: 'dist/v2'
-  //   },
-  //   plugins: [
-  //     typescript()
-  //   ]
-  // },
   {
     input: {
-      'index': 'src/index.ts',
-      'process_worker': 'src/process_worker/index.ts'
+      'kernel': 'src/kernelspace/index.ts'
     },
     output: {
-      chunkFileNames: '[name].mjs',
-      entryFileNames: '[name].mjs',
+      chunkFileNames: '[name].js',
+      entryFileNames: '[name].js',
       format: 'esm',
-      dir: 'public/dist'
+      dir: 'public/lib'
     },
     plugins: [
       typescript()
     ]
-  }
+  },
+  {
+    input: {
+      'process': 'src/userspace/index.ts'
+    },
+    output: {
+      exports: 'named',
+      format: 'iife',
+      dir: 'public/lib'
+    },
+    plugins: [
+      typescript()
+    ]
+  },
+  ...readdirSync(__dirname + '/src/command')
+    .filter(name => name.endsWith('.ts'))
+    .map(name =>
+      [`${name.slice(0, -3)}`, `src/command/${name}`]
+    )
+    .map(([name, from]) => ({
+      input: {
+        [name]: from
+      },
+      output: {
+        exports: 'named',
+        name: 'webcontainer',
+        format: 'iife',
+        dir: 'public/command'
+      },
+      plugins: [
+        typescript()
+      ]
+    }))
 ];

@@ -4,20 +4,14 @@
   "main": "dist/index.js",
   "author": "Minigugus <43109623+Minigugus@users.noreply.github.com>",
   "scripts": {
-    "serve": "npx serve",
-    "watch": "npx rollup -w -c",
-    "build": "npx rollup -c"
+    "build": "rollup -c"
   },
-  "name": "webcontainer-shell",
-  "description": "A naive proof-of-concept WebContainer inspired shell",
+  "name": "webcontainer-runtime",
+  "description": "WebContainer-like runtime for OS-like features in the browser",
   "license": "MIT",
   "devDependencies": {
-    "rollup": "^2.48.0",
+    "rollup": "^2.56.3",
     "rollup-plugin-typescript2": "^0.30.0",
-    "typescript": "^4.2.4"
-  },
-  "dependencies": {
-    "xterm": "^4.12.0",
-    "xterm-addon-fit": "^0.5.0"
+    "typescript": "^4.4.2"
   }
 }

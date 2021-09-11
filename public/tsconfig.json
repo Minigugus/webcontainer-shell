@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "ESNext",
+    "outDir": "dist",
+    "moduleResolution": "classic",
+    "allowJs": true,
+    "checkJs": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "lib": [
+      "ES2019",
+      "DOM"
+    ]
+  },
+  "include": [
+    "*.js",
+    "lib/*.mjs"
+  ]
+}

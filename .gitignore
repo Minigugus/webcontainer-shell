@@ -1,5 +1,5 @@
 node_modules/
-/public/dist/
 /dist/
-
-.vercel
+/public/command/
+/public/lib/
+*~
