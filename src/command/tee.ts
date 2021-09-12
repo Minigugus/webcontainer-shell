@@ -1,5 +1,10 @@
 /// <reference path="../userspace/index.d.ts" />
 
+/**
+ * Redirects stdin to stdout and to all files passed at parameters
+ * @usage <file1> <file2> ... <fileN>
+ */
+
 if (typeof webcontainer !== 'function')
   throw new Error('Missing webcontainer runtime');
 

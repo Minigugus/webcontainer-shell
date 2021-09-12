@@ -91,6 +91,33 @@ class LocalProcess {
     return Object.assign(Object.create(null), this.#env);
   }
 
+  stdin() {
+    const resource = this.#resources[0];
+    if (resource) {
+      resource.reader?.releaseLock();
+      delete this.#resources[0];
+    }
+    return this.#stdin;
+  }
+
+  stdout() {
+    const resource = this.#resources[1];
+    if (resource) {
+      resource.writer?.releaseLock();
+      delete this.#resources[1];
+    }
+    return this.#stdout;
+  }
+
+  stderr() {
+    const resource = this.#resources[2];
+    if (resource) {
+      resource.writer?.releaseLock();
+      delete this.#resources[2];
+    }
+    return this.#stderr;
+  }
+
   getenv(name: string): string | null {
     return this.#env[name] ?? null;
   }
@@ -104,6 +131,21 @@ class LocalProcess {
 
   resolve(path: string) {
     return new URL(path, 'file://' + this.#cwd + '/').pathname;
+  }
+
+  async createReadStream(path: string): Promise<ReadableStream<Uint8Array>> {
+    const parts = segments(path = this.resolve(path));
+    return this.#kernel.readFile(parts);
+  }
+
+  async createWriteStream(path: string, seek: 'after' | 'before' | 'override', createOrReplace: boolean): Promise<WritableStream<Uint8Array>> {
+    const parts = segments(path = this.resolve(path));
+    return this.#kernel.writeFile(parts, seek, createOrReplace);
+  }
+
+  async unlink(path: string, recursive = false) {
+    const parts = segments(path = this.resolve(path));
+    await this.#kernel.deleteNode(parts, recursive);
   }
 
   getResourceURI(rid: number) {

@@ -5,6 +5,7 @@ import { KERNEL_PROCESS_ENDPOINT, LOCAL_PROCESS_CONTROLLER_ENDPOINT } from '../s
 import { deferrable } from '../utils';
 
 import { OverlayFS } from './fs/overlay';
+import { NativeFS } from './fs/native';
 import { MemFS } from './fs/memfs';
 import { HTTPFS } from './fs/http';
 import { NullFS } from './fs/null';
@@ -12,6 +13,7 @@ import { CustomTransferable, TO_TRANSFORABLES } from '../rpc';
 
 export const fs = {
   OverlayFS,
+  NativeFS,
   MemFS,
   HTTPFS,
   NullFS,

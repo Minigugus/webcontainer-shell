@@ -1,5 +1,10 @@
 /// <reference path="../userspace/index.d.ts" />
 
+/**
+ * Spawn a process that wait for at least N milliseconds
+ * @usage [N]
+ */
+
 if (typeof webcontainer !== 'function')
   throw new Error('Missing webcontainer runtime');
 

@@ -1,5 +1,10 @@
 /// <reference path="../userspace/index.d.ts" />
 
+/**
+ * Prints one or more file sequentially into stdout
+ * @usage <file1> <file2> ... <fileN>
+ */
+
 if (typeof webcontainer !== 'function')
   throw new Error('Missing webcontainer runtime');
 

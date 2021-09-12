@@ -1,5 +1,9 @@
 /// <reference path="../userspace/index.d.ts" />
 
+/**
+ * Prints environment variables passed to this process
+ */
+
 if (typeof webcontainer !== 'function')
   throw new Error('Missing webcontainer runtime');
 

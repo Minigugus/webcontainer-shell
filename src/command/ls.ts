@@ -1,5 +1,10 @@
 /// <reference path="../userspace/index.d.ts" />
 
+/**
+ * Prints files and directories in the current directory or in thoses passed as parameter
+ * @usage <dir1> <dir2> ... <dirN>
+ */
+
 if (typeof webcontainer !== 'function')
   throw new Error('Missing webcontainer runtime');
 

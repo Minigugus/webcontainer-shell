@@ -1,5 +1,9 @@
 /// <reference path="../userspace/index.d.ts" />
 
+/**
+ * The shell that powers this terminal
+ */
+
 if (typeof webcontainer !== 'function')
   throw new Error('Missing webcontainer runtime');
 
@@ -26,15 +30,15 @@ const BUILTIN: Record<string, (process: LocalProcess, argv: [string, ...string[]
     },
     'user': async (process: LocalProcess, argv: [string, ...string[]]) => {
       if (argv.length > 1)
-        process.setenv('USERNAME', argv[1] || 'nobody');
+        process.setenv('USER', argv[1] || 'nobody');
       else
-        await process.write(1, ENCODER.encode(process.getenv('USERNAME') + '\r\n'));
+        await process.write(1, ENCODER.encode(process.getenv('USER') + '\r\n'));
     },
     'hostname': async (process: LocalProcess, argv: [string, ...string[]]) => {
       if (argv.length > 1)
-        process.setenv('HOSTNAME', argv[1] || new URL(location.origin).host);
+        process.setenv('HOST', argv[1] || new URL(location.origin).host);
       else
-        await process.write(1, ENCODER.encode(process.getenv('HOSTNAME') + '\r\n'));
+        await process.write(1, ENCODER.encode(process.getenv('HOST') + '\r\n'));
     },
     'unset': async (process: LocalProcess, argv: [string, ...string[]]) => {
       argv.slice(1).forEach(n => process.setenv(n, null));
@@ -44,15 +48,15 @@ const BUILTIN: Record<string, (process: LocalProcess, argv: [string, ...string[]
 function mapError(err: Error) {
   switch (err.message) {
     case 'ENOTFOUND':
-      return 'Command not found';
+      return 'not found';
   }
   return err.message;
 }
 
 webcontainer(async process => {
   const prompt = () => ENCODER.encode(
-    `\x1B[1;32m${process.getenv('USERNAME') || 'nobody'
-    }@${process.getenv('HOSTNAME') || new URL(location.origin).host
+    `\x1B[1;32m${process.getenv('USER') || 'nobody'
+    }@${process.getenv('HOST') || new URL(location.origin).host
     }\x1B[0m:\x1B[1;34m${process.cwd
     }\x1B[0m$ `
   );
@@ -67,7 +71,18 @@ webcontainer(async process => {
   }
   const rid = 0;
   try {
-    process.write(2, new Uint8Array(prompt()));
+    try {
+      const rid = await process.openRead('/etc/motd');
+      let buffer;
+      while ((buffer = await process.read(rid, )) !== null)
+        await process.write(1, buffer);
+      await process.close(rid);
+    } catch (err) {
+      const msg = (err instanceof Error && err.message) || String(err);
+      if (msg !== 'ENOTFOUND')
+      await process.write(2, ENCODER.encode(`/etc/motd: ${msg}`));
+    }
+    await process.write(2, new Uint8Array(prompt()));
     let line: number[] = [];
     let running: Promise<any> | null = null;
     let writer: WritableStreamDefaultWriter<Uint8Array> | null = null;
@@ -106,39 +121,50 @@ webcontainer(async process => {
               line = []
               break;
             }
-            const argv = new TextDecoder()
-              .decode(new Uint8Array(line))
-              .split(' ')
-              .filter(a => a);
-            let env: Record<string, string> = Object.create(null);
-            {
-              let index;
-              while (argv[0] && (index = argv[0].indexOf('=')) !== -1)
-                env[argv[0].slice(0, index)] = argv.shift()!.slice(index + 1);
-            }
-            line = [];
-            if (!argv.length) {
-              Object.entries(env)
-                .forEach(([k, v]) => process.setenv(k, v))
-              output = output.concat([...prompt(), ...line]);
-              break;
-            }
-            env = Object.assign(process.env, env);
+            // const argv = new TextDecoder()
+            //   .decode(new Uint8Array(line))
+            //   .split(' ')
+            //   .filter(a => a);
+            let cmd: Cmd | null = null;
             try {
-              if (argv[0]! in BUILTIN) {
+              cmd = parseCmd(new TextDecoder().decode(new Uint8Array(line)));
+              console.debug('cmd', cmd);
+              line = [];
+              if (!cmd.arg0) {
+                Object.entries(cmd.env)
+                  .forEach(([k, v]) => process.setenv(k, v))
+                output = output.concat([...prompt(), ...line]);
+                break;
+              }
+              const env = Object.assign(process.env, cmd.env);
+              if (cmd.arg0 in BUILTIN) {
+                const c = cmd;
                 running = Promise.resolve()
-                  .then(() => BUILTIN[argv[0]!]!(process, argv as [string, ...string[]]));
+                  .then(() => BUILTIN[c.arg0!]!(process, [c.arg0!, ...c.args]));
               } else {
-                const child = await process.spawn(argv[0]!, {
-                  args: argv.splice(1),
-                  env
-                });
-                writer = child.stdin.getWriter();
-                writer.closed.then(() => (writer = null));
-                running = Promise.all([
-                  pump(child.stdout, 1).catch(() => null),
-                  pump(child.stderr, 2).catch(() => null),
-                ]);
+                let c: Cmd | null = cmd, child, promises: Promise<any>[] = [];
+                do {
+                  let prev = child;
+                  child = await process.spawn(c.arg0!, {
+                    args: c.args,
+                    env
+                  });
+                  promises.push(pump(child.stderr, 2).catch(() => null));
+                  if (writer === null) {
+                    writer = child.stdin.getWriter();
+                    writer.closed.then(() => (writer = null));
+                  } else if (prev) {
+                    promises.push(prev.stdout.pipeTo(child.stdin));
+                  }
+                } while ((c = c.pipeTo) !== null);
+                // const child = await process.spawn(cmd.arg0, {
+                //   args: cmd.args,
+                //   env
+                // });
+                // writer = child.stdin.getWriter();
+                // writer.closed.then(() => (writer = null));
+                promises.push(pump(child.stdout, 1).catch(() => null));
+                running = Promise.all(promises);
               }
               running.finally(async () => {
                 await writer?.close().catch(() => null);
@@ -148,7 +174,7 @@ webcontainer(async process => {
               });
             } catch (err) {
               output = output.concat([
-                ...ENCODER.encode(`bash: ${argv[0]}: ${((err instanceof Error && mapError(err)) || err)}\r\n`),
+                ...ENCODER.encode(`bash: ${cmd ? `${cmd.arg0}: ` : ''}${((err instanceof Error && mapError(err)) || err)}\r\n`),
                 ...prompt(),
                 ...line
               ]);
@@ -192,3 +218,46 @@ webcontainer(async process => {
   }
   await process.write(2, new Uint8Array([101, 120, 105, 116, 13, 10]));
 });
+
+interface Cmd {
+  env: Record<string, string>;
+  arg0: string | null;
+  args: string[];
+  pipeTo: Cmd | null; //number | string | 
+}
+
+function parseCmd(input: string): Cmd {
+  const cmd = {
+    env: Object.create(null),
+    arg0: null as string | null,
+    args: [] as string[],
+    pipeTo: null as Cmd | null,
+  };
+  let match;
+  while ((input = input.trim()).length > 0) {
+    if ((match = /^[^\s\|\>\<]+/.exec(input)) !== null) {
+      const arg = match[0]!;
+      input = input.slice(arg.length);
+      let index;
+      if (cmd.arg0 === null && (index = arg.indexOf('=')) !== -1) {
+        const key = arg.slice(0, index);
+        const value = arg.slice(index + 1);
+        cmd.env[key] = value;
+      } else if (cmd.arg0 === null) {
+        cmd.arg0 = arg;
+      } else {
+        cmd.args.push(arg);
+      }
+    } else {
+      if (cmd.arg0)
+        if (input[0] === '|') {
+          cmd.pipeTo = parseCmd(input.slice(1));
+          input = '';
+          if (cmd.pipeTo.arg0)
+            continue;
+        }
+      throw new Error('malformed command line');
+    }
+  }
+  return cmd;
+}
