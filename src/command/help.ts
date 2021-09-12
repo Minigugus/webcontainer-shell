@@ -18,8 +18,11 @@ webcontainer(async function help(process) {
         'Content-Type': 'application/json'
       }
     }).json();
-    for (const [name, { usage, description }] of Object.entries<{ usage: string[], description: string }>(cmds))
-      await print(`${[`\x1B[1m${name}\x1B[0m`, ...usage.map(a => `\x1B[4m${a}\x1B[0m`)].join(' ')}\n\t${description || '(no help available)'}\n`);
+    for (const [name, { usage, description }] of Object.entries<{ usage: string[], description: string }>(cmds)) {
+      let desc = description || '(no help available)';
+      desc = desc.split('\n').map(x => '\t' + x).join('\n');
+      await print(`${[`\x1B[1m${name}\x1B[0m`, ...usage.map(a => `\x1B[4m${a}\x1B[0m`)].join(' ')}\n${desc}\n`);
+    }
   } catch (err) {
     await printErr(`\x1B[1;31mCommands list not available (${(err instanceof Error && err.message) ?? err})\x1B[0m`);
     await print('');
@@ -31,6 +34,7 @@ webcontainer(async function help(process) {
   await print('  \x1B[1m     TAB\x1B[0m : DOES NOTHING (no auto-compelte yet)');
   await print('');
   await print("Commands can be piped together with a | character (eg. \x1B[4mecho Hello world! | tee README\x1B[0m). && and || doesn't work yet.");
-  // await print('');
-  // await print('TIP: Drop here a directory from your computer to make it accessible via this terminal.');
+  await print("Environment variables are also supported. Play with \x1B[4menv\x1B[0m command for more.");
+  await print('');
+  await print('You can also drop a directory from your computer here to make it accessible via this terminal.');
 });

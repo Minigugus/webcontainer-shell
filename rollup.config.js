@@ -42,7 +42,7 @@ export default [
       const [, description = '', usage = ''] = /\/\*\*((?:.|\n)+?)(?:@usage\s([^\n]+?)\s+)?\*\//.exec(content) ?? [];
       commands[name] = {
         usage: usage.split(' ').filter(x => x),
-        description: description.replace(/^\s(?:\n|\*\s+)/gm, '').trim()
+        description: description.replace(/^(?:\n|\s\*\s)/gm, '').trim()
       };
       return ({
         input: {

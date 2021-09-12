@@ -12,7 +12,7 @@ This projects aims to contribute to the discussion about [WebContainer specifica
 
 This is a bash-like shell but that runs in the browser. It comes with a lightweight kernel implementation (supports process and filesystem management):
  * Every process runs in its own dedicated worker
- * [Extensible filesystem](public/index.js#L30-48)
+ * [Extensible filesystem](public/index.js#L56-L62)
  * Performant (heavily rely on postMessage and Transferable objects - reduce minimize the amount of copy)
  * Supports commands pipes (eg. `echo Hello world! | tee README`)
 
@@ -26,10 +26,13 @@ Interesting files:
  * [ ] Serve filesystem via Service Worker
  * [ ] Let the app works offline with a Service Worker
  * [X] Move shell features into a dedicated a process (enable nested shells)
+ * [ ] Add signals support (for SIGINT and SIGKILL)
  * [ ] Add jobs support (enables detached commands)
  * [ ] Add network support (TCP, UNIX socket, UDP)
- * [ ] Add multi-tabs support (cross-tabs kernel)
+ * [ ] Add multi-tabs support (one container per tab)
+ * [ ] Add a [WASI](https://wasi.dev) runtime (a `wasi [wasm-file]` command for instance)
+   * [ ] Add integration with [WAPM](https://wapm.io/interface/wasi)
  * [ ] Add `ps` and `kill` commands
  * [ ] Add docs about APIs and kernel design
- * [ ] Add a `deno` command (redirect ops to the in-browser kernel)
+ * [ ] Add a `deno` command (shim the Rust part with a wrapper around this lib's API)
  * [ ] `iframe`-based process ? (enable `electron`-like apps)

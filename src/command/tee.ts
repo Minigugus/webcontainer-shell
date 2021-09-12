@@ -1,7 +1,7 @@
 /// <reference path="../userspace/index.d.ts" />
 
 /**
- * Redirects stdin to stdout and to all files passed at parameters
+ * Redirects stdin to stdout and to all files passed as parameters
  * @usage <file1> <file2> ... <fileN>
  */
 

@@ -2,6 +2,13 @@
 
 /**
  * The shell that powers this terminal
+ * Builtin commands:
+ *  - cd: change current directory
+ *  - pwd: print current directory
+ *  - exit: close the session
+ *  - user: prints/change the current user (same as USER=username)
+ *  - hostname: prints/change the current user (same as HOST=hostname)
+ *  - unset: delete an environment variable
  */
 
 if (typeof webcontainer !== 'function')

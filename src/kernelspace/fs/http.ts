@@ -17,7 +17,7 @@ export class HTTPFS implements FileSystemDriver {
     const url = new URL(path.join('/'), this.#root);
     url.hash = '';
     url.search = '';
-    const response = await fetch(url.href, { method: 'HEAD' });
+    const response = await fetch(url.href, { method: 'HEAD', cache: 'force-cache' });
     switch (response.status) {
       case 200:
       case 201:
@@ -38,7 +38,7 @@ export class HTTPFS implements FileSystemDriver {
     const url = new URL(path.join('/'), this.#root);
     url.hash = '';
     url.search = '';
-    const response = await fetch(url.href);
+    const response = await fetch(url.href, { cache: 'force-cache' });
     switch (response.status) {
       case 200:
         break;

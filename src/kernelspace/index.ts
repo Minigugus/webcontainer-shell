@@ -8,6 +8,7 @@ import { OverlayFS } from './fs/overlay';
 import { NativeFS } from './fs/native';
 import { MemFS } from './fs/memfs';
 import { HTTPFS } from './fs/http';
+import { EmptyFS } from './fs/empty';
 import { NullFS } from './fs/null';
 import { CustomTransferable, TO_TRANSFORABLES } from '../rpc';
 
@@ -16,6 +17,7 @@ export const fs = {
   NativeFS,
   MemFS,
   HTTPFS,
+  EmptyFS,
   NullFS,
 }
 
@@ -77,7 +79,7 @@ class Kernel {
         }
       }
     } else if (/^\.?\.?\//.test(info.entrypoint))
-      info.entrypoint = new URL(info.entrypoint, 'file://' + info.cwd).pathname;
+      info.entrypoint = new URL(info.entrypoint, 'file://' + info.cwd + '/').pathname;
     const process = await KernelProcess.spawn(this, {
       ...info,
       entrypoint: info.entrypoint,

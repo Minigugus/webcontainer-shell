@@ -54,11 +54,32 @@ Type \x1B[1;3mhelp\x1B[0m to get started\n`)
 filesystem
   .mount([], root)
   .mount(['root'], filesystem)
+  .mount(['mnt'], new fs.EmptyFS())
   .mount(['dev'], new fs.NullFS()) // TODO dedicated driver
   .mount(['sys'], new fs.NullFS()) // TODO dedicated driver
   .mount(['proc'], new fs.NullFS()) // TODO dedicated driver
   .mount(['bin'], new fs.HTTPFS(new URL('./command/', import.meta.url).href))
   .mount(['tmp'], new fs.MemFS());
+
+document.body.addEventListener('drop', async (e) => {
+  e.preventDefault();
+  const dirs = [];
+  // @ts-ignore
+  for (const item of e.dataTransfer.items) {
+    if (item.kind === 'file') {
+      const entry = await item.getAsFileSystemHandle();
+      if (entry.kind === 'directory') {
+        try {
+          filesystem.mount(['mnt', entry.name], new fs.NativeFS(entry));
+          dirs.push(` - /mnt/${entry.name}: OK`);
+        } catch (err) {
+          dirs.push(` - /mnt/${entry.name}: ERROR: ${(err instanceof Error && err.message) || err}`);
+        }
+      }
+    }
+  }
+  alert(`Imported directories:\n${dirs.join('\n')}`)
+});
 
 try {
   const bash = await webcontainer.run({

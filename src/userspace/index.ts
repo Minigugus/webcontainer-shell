@@ -260,7 +260,7 @@ class LocalProcessController {
   ): Promise<void> {
     const kernel = KERNEL_PROCESS_ENDPOINT.attach(channel);
     channel.start();
-    const resolved = new URL(info.entrypoint, 'file://' + info.cwd);
+    const resolved = new URL(info.entrypoint, 'file://' + info.cwd + '/');
     const entrypointUrl = resolved.protocol === 'file:'
       ? await kernel.resolveUri(segments(resolved.pathname))
       : resolved.href;
